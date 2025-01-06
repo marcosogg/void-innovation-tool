@@ -4,12 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
+import MonthlyBudgetView from "@/components/MonthlyBudgetView";
+import { Tables } from "@/integrations/supabase/types";
 
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [hasBudget, setHasBudget] = useState(false);
+  const [budget, setBudget] = useState<Tables<"monthly_budgets"> | null>(null);
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -61,6 +64,7 @@ const Index = () => {
 
         if (existingBudget) {
           setHasBudget(true);
+          setBudget(existingBudget);
           setLoading(false);
           return;
         }
@@ -88,24 +92,28 @@ const Index = () => {
 
         if (template) {
           // Create new budget from template
-          const { error: createError } = await supabase.from("monthly_budgets").insert({
-            user_id: session.session.user.id,
-            month: currentMonth,
-            year: currentYear,
-            is_template: false,
-            salary_income: template.salary_income,
-            bonus_income: template.bonus_income,
-            extra_income: template.extra_income,
-            rent: template.rent,
-            utilities: template.utilities,
-            groceries: template.groceries,
-            transport: template.transport,
-            entertainment: template.entertainment,
-            shopping: template.shopping,
-            miscellaneous: template.miscellaneous,
-            brazilian_expenses_total: template.brazilian_expenses_total,
-            savings: template.savings,
-          });
+          const { data: newBudget, error: createError } = await supabase
+            .from("monthly_budgets")
+            .insert({
+              user_id: session.session.user.id,
+              month: currentMonth,
+              year: currentYear,
+              is_template: false,
+              salary_income: template.salary_income,
+              bonus_income: template.bonus_income,
+              extra_income: template.extra_income,
+              rent: template.rent,
+              utilities: template.utilities,
+              groceries: template.groceries,
+              transport: template.transport,
+              entertainment: template.entertainment,
+              shopping: template.shopping,
+              miscellaneous: template.miscellaneous,
+              brazilian_expenses_total: template.brazilian_expenses_total,
+              savings: template.savings,
+            })
+            .select()
+            .single();
 
           if (createError) {
             console.error("Error creating budget from template:", createError);
@@ -116,6 +124,7 @@ const Index = () => {
             });
           } else {
             setHasBudget(true);
+            setBudget(newBudget);
             toast({
               title: "Budget Created",
               description: "A new budget has been created from your template.",
@@ -154,7 +163,7 @@ const Index = () => {
         </div>
         
         {loading ? (
-          <div className="text-center text-muted-foreground">Loading...</div>
+          <MonthlyBudgetView budget={null as any} isLoading={true} />
         ) : !hasBudget ? (
           <div className="text-center space-y-4">
             <p className="text-muted-foreground">No budget exists for the current month.</p>
@@ -162,11 +171,9 @@ const Index = () => {
               Create Budget Template
             </Button>
           </div>
-        ) : (
-          <div className="text-center text-muted-foreground">
-            Your budget for this month is ready!
-          </div>
-        )}
+        ) : budget ? (
+          <MonthlyBudgetView budget={budget} />
+        ) : null}
       </div>
     </div>
   );
