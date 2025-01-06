@@ -48,7 +48,7 @@ const NewBudgetForm = () => {
   const form = useForm<BudgetFormValues>({
     resolver: zodResolver(budgetFormSchema),
     defaultValues: {
-      month: new Date().toISOString().slice(0, 7), // Current month in YYYY-MM format
+      month: new Date().toISOString().slice(0, 7),
       year: new Date().getFullYear(),
       salary_income: 0,
       bonus_income: 0,
@@ -72,11 +72,12 @@ const NewBudgetForm = () => {
         throw new Error("No authenticated user found");
       }
 
+      const [year, month] = form.watch("month").split("-");
       const { data, error } = await supabase
         .from("monthly_budgets")
         .select("*")
-        .eq("month", form.watch("month").split("-")[1])
-        .eq("year", parseInt(form.watch("month").split("-")[0]))
+        .eq("month", month)
+        .eq("year", parseInt(year))
         .eq("profile_id", session.session.user.id)
         .maybeSingle();
 
@@ -93,10 +94,11 @@ const NewBudgetForm = () => {
       }
 
       const total_income = values.salary_income + values.bonus_income + values.extra_income;
+      const [year, month] = values.month.split("-");
       
       const { error } = await supabase.from("monthly_budgets").upsert({
-        month: values.month.split("-")[1],
-        year: parseInt(values.month.split("-")[0]),
+        month: month,
+        year: parseInt(year),
         salary_income: values.salary_income,
         bonus_income: values.bonus_income,
         extra_income: values.extra_income,
@@ -113,7 +115,10 @@ const NewBudgetForm = () => {
         profile_id: session.session.user.id,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error saving budget:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       toast({
@@ -245,6 +250,6 @@ const NewBudgetForm = () => {
       </Form>
     </div>
   );
-};
+});
 
 export default NewBudgetForm;
