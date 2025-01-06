@@ -4,9 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import IncomeSection from "./IncomeSection";
 import ExpensesSection from "./ExpensesSection";
+import { useBudgetTemplate } from "@/hooks/useBudgetTemplate";
+import { useUpdateBudgetTemplate } from "@/hooks/useUpdateBudgetTemplate";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,78 +55,51 @@ const BudgetTemplateForm = () => {
     },
   });
 
+  const { data: template, isLoading } = useBudgetTemplate();
+  const { mutate: updateTemplate, isPending } = useUpdateBudgetTemplate();
+
   useEffect(() => {
-    const loadTemplate = async () => {
-      const { data: session } = await supabase.auth.getSession();
-      if (!session?.session?.user) return;
+    if (template) {
+      form.reset({
+        salary_income: template.salary_income,
+        bonus_income: template.bonus_income,
+        extra_income: template.extra_income,
+        rent: template.rent,
+        utilities: template.utilities,
+        groceries: template.groceries,
+        transport: template.transport,
+        entertainment: template.entertainment,
+        shopping: template.shopping,
+        miscellaneous: template.miscellaneous,
+        brazilian_expenses_total: template.brazilian_expenses_total,
+        savings: template.savings,
+      });
+    }
+  }, [template, form]);
 
-      const { data: template, error } = await supabase
-        .from("monthly_budgets")
-        .select("*")
-        .eq("user_id", session.session.user.id)
-        .eq("is_template", true)
-        .eq("month", "0000-00")
-        .eq("year", new Date().getFullYear())
-        .maybeSingle();
-
-      if (error) {
-        console.error("Error loading template:", error);
+  const handleSaveTemplate = (values: TemplateFormValues) => {
+    updateTemplate(values, {
+      onSuccess: () => {
+        toast({
+          title: "Success",
+          description: "Budget template saved successfully.",
+        });
+        navigate("/");
+      },
+      onError: (error) => {
+        console.error("Error saving template:", error);
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to load budget template.",
+          description: "Failed to save budget template. Please try again.",
         });
-        return;
-      }
-
-      if (template) {
-        form.reset({
-          salary_income: template.salary_income,
-          bonus_income: template.bonus_income,
-          extra_income: template.extra_income,
-          rent: template.rent,
-          utilities: template.utilities,
-          groceries: template.groceries,
-          transport: template.transport,
-          entertainment: template.entertainment,
-          shopping: template.shopping,
-          miscellaneous: template.miscellaneous,
-          brazilian_expenses_total: template.brazilian_expenses_total,
-          savings: template.savings,
-        });
-      }
-    };
-
-    loadTemplate();
-  }, [form, toast]);
-
-  const handleSaveTemplate = async (values: TemplateFormValues) => {
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) return;
-
-    const { error } = await supabase.from("monthly_budgets").upsert({
-      user_id: session.session.user.id,
-      is_template: true,
-      month: "0000-00",
-      year: new Date().getFullYear(),
-      ...values,
+      },
     });
-
-    if (error) {
-      console.error("Error saving template:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to save budget template. Please try again.",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Budget template saved successfully.",
-      });
-      navigate("/");
-    }
   };
+
+  if (isLoading || isPending) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Form {...form}>

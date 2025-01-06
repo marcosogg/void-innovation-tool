@@ -1,19 +1,30 @@
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import MonthlyBudgetView from "@/components/MonthlyBudgetView";
-import { Tables } from "@/integrations/supabase/types";
+import { supabase } from "@/integrations/supabase/client";
+import { useMonthlyBudget } from "@/hooks/useMonthlyBudget";
+import { useBudgetTemplate } from "@/hooks/useBudgetTemplate";
+import { useCreateMonthlyBudget } from "@/hooks/useCreateMonthlyBudget";
 
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [loading, setLoading] = useState(true);
-  const [hasBudget, setHasBudget] = useState(false);
-  const [budget, setBudget] = useState<Tables<"monthly_budgets"> | null>(null);
+
+  const {
+    data: budget,
+    isLoading: isBudgetLoading,
+    error: budgetError,
+  } = useMonthlyBudget();
+
+  const {
+    data: template,
+    isLoading: isTemplateLoading,
+    error: templateError,
+  } = useBudgetTemplate();
+
+  const { mutate: createBudget, isPending: isCreatingBudget } = useCreateMonthlyBudget();
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
@@ -32,121 +43,36 @@ const Index = () => {
     }
   };
 
-  useEffect(() => {
-    const checkAndCreateBudget = async () => {
-      try {
-        const { data: session } = await supabase.auth.getSession();
-        if (!session?.session?.user) return;
+  if (budgetError || templateError) {
+    toast({
+      variant: "destructive",
+      title: "Error",
+      description: "Failed to load budget data. Please try again.",
+    });
+  }
 
-        const currentDate = new Date();
-        const currentMonth = format(currentDate, 'yyyy-MM');
-        const currentYear = currentDate.getFullYear();
+  const isLoading = isBudgetLoading || isTemplateLoading || isCreatingBudget;
 
-        // Check if budget exists for current month using maybeSingle()
-        const { data: existingBudget, error: existingBudgetError } = await supabase
-          .from("monthly_budgets")
-          .select("*")
-          .eq("user_id", session.session.user.id)
-          .eq("month", currentMonth)
-          .eq("year", currentYear)
-          .eq("is_template", false)
-          .maybeSingle();
-
-        if (existingBudgetError) {
-          console.error("Error checking existing budget:", existingBudgetError);
+  const handleCreateFromTemplate = () => {
+    if (template) {
+      createBudget(template, {
+        onSuccess: () => {
+          toast({
+            title: "Success",
+            description: "A new budget has been created from your template.",
+          });
+        },
+        onError: (error) => {
           toast({
             variant: "destructive",
             title: "Error",
-            description: "Failed to check existing budget.",
+            description: "Failed to create budget from template.",
           });
-          setLoading(false);
-          return;
-        }
-
-        if (existingBudget) {
-          setHasBudget(true);
-          setBudget(existingBudget);
-          setLoading(false);
-          return;
-        }
-
-        // If no budget exists, check for template using maybeSingle()
-        const { data: template, error: templateError } = await supabase
-          .from("monthly_budgets")
-          .select("*")
-          .eq("user_id", session.session.user.id)
-          .eq("is_template", true)
-          .eq("month", "0000-00")
-          .eq("year", currentYear)
-          .maybeSingle();
-
-        if (templateError) {
-          console.error("Error checking template:", templateError);
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to check budget template.",
-          });
-          setLoading(false);
-          return;
-        }
-
-        if (template) {
-          // Create new budget from template
-          const { data: newBudget, error: createError } = await supabase
-            .from("monthly_budgets")
-            .insert({
-              user_id: session.session.user.id,
-              month: currentMonth,
-              year: currentYear,
-              is_template: false,
-              salary_income: template.salary_income,
-              bonus_income: template.bonus_income,
-              extra_income: template.extra_income,
-              rent: template.rent,
-              utilities: template.utilities,
-              groceries: template.groceries,
-              transport: template.transport,
-              entertainment: template.entertainment,
-              shopping: template.shopping,
-              miscellaneous: template.miscellaneous,
-              brazilian_expenses_total: template.brazilian_expenses_total,
-              savings: template.savings,
-            })
-            .select()
-            .single();
-
-          if (createError) {
-            console.error("Error creating budget from template:", createError);
-            toast({
-              variant: "destructive",
-              title: "Error",
-              description: "Failed to create budget from template.",
-            });
-          } else {
-            setHasBudget(true);
-            setBudget(newBudget);
-            toast({
-              title: "Budget Created",
-              description: "A new budget has been created from your template.",
-            });
-          }
-        }
-
-        setLoading(false);
-      } catch (error) {
-        console.error("Error checking/creating budget:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "An unexpected error occurred.",
-        });
-        setLoading(false);
-      }
-    };
-
-    checkAndCreateBudget();
-  }, [toast, location.key]); // Add location.key to dependencies to trigger refresh on navigation
+          console.error("Error creating budget:", error);
+        },
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen p-4">
@@ -163,11 +89,18 @@ const Index = () => {
           </div>
         </div>
         
-        {loading ? (
+        {isLoading ? (
           <MonthlyBudgetView budget={null as any} isLoading={true} />
-        ) : !hasBudget ? (
+        ) : !budget && template ? (
           <div className="text-center space-y-4">
             <p className="text-muted-foreground">No budget exists for the current month.</p>
+            <Button onClick={handleCreateFromTemplate}>
+              Create Budget from Template
+            </Button>
+          </div>
+        ) : !budget && !template ? (
+          <div className="text-center space-y-4">
+            <p className="text-muted-foreground">No budget template exists.</p>
             <Button onClick={() => navigate("/settings")}>
               Create Budget Template
             </Button>
