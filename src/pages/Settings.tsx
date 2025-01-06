@@ -50,14 +50,24 @@ const Settings = () => {
         return;
       }
 
-      const { data: template } = await supabase
+      const { data: template, error } = await supabase
         .from("monthly_budgets")
         .select("*")
         .eq("user_id", session.session.user.id)
         .eq("is_template", true)
         .eq("month", "template")
         .eq("year", new Date().getFullYear())
-        .single();
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error loading template:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load budget template.",
+        });
+        return;
+      }
 
       if (template) {
         form.reset({
@@ -78,7 +88,7 @@ const Settings = () => {
     };
 
     loadTemplate();
-  }, [form, navigate]);
+  }, [form, navigate, toast]);
 
   const onSubmit = async (values: TemplateFormValues) => {
     const { data: session } = await supabase.auth.getSession();
@@ -96,6 +106,7 @@ const Settings = () => {
     });
 
     if (error) {
+      console.error("Error saving template:", error);
       toast({
         variant: "destructive",
         title: "Error",

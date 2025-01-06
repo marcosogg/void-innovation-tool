@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 
 const Index = () => {
   const { toast } = useToast();
@@ -34,18 +35,29 @@ const Index = () => {
         if (!session?.session?.user) return;
 
         const currentDate = new Date();
-        const currentMonth = currentDate.toLocaleString('default', { month: 'long' }).toLowerCase();
+        const currentMonth = format(currentDate, 'yyyy-MM');
         const currentYear = currentDate.getFullYear();
 
-        // Check if budget exists for current month
-        const { data: existingBudget } = await supabase
+        // Check if budget exists for current month using maybeSingle()
+        const { data: existingBudget, error: existingBudgetError } = await supabase
           .from("monthly_budgets")
           .select("*")
           .eq("user_id", session.session.user.id)
           .eq("month", currentMonth)
           .eq("year", currentYear)
           .eq("is_template", false)
-          .single();
+          .maybeSingle();
+
+        if (existingBudgetError) {
+          console.error("Error checking existing budget:", existingBudgetError);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to check existing budget.",
+          });
+          setLoading(false);
+          return;
+        }
 
         if (existingBudget) {
           setHasBudget(true);
@@ -53,15 +65,26 @@ const Index = () => {
           return;
         }
 
-        // If no budget exists, check for template
-        const { data: template } = await supabase
+        // If no budget exists, check for template using maybeSingle()
+        const { data: template, error: templateError } = await supabase
           .from("monthly_budgets")
           .select("*")
           .eq("user_id", session.session.user.id)
           .eq("is_template", true)
           .eq("month", "template")
           .eq("year", currentYear)
-          .single();
+          .maybeSingle();
+
+        if (templateError) {
+          console.error("Error checking template:", templateError);
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Failed to check budget template.",
+          });
+          setLoading(false);
+          return;
+        }
 
         if (template) {
           // Create new budget from template
@@ -85,6 +108,7 @@ const Index = () => {
           });
 
           if (createError) {
+            console.error("Error creating budget from template:", createError);
             toast({
               variant: "destructive",
               title: "Error",
@@ -102,6 +126,11 @@ const Index = () => {
         setLoading(false);
       } catch (error) {
         console.error("Error checking/creating budget:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An unexpected error occurred.",
+        });
         setLoading(false);
       }
     };
