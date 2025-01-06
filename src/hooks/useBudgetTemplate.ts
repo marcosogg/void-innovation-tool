@@ -3,11 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
-interface UseBudgetTemplateProps {
-  date: Date;
-}
-
-export const useBudgetTemplate = ({ date }: UseBudgetTemplateProps) => {
+export const useBudgetTemplate = (date: Date) => {
   const month = format(date, "MM");
   const year = date.getFullYear();
 
@@ -39,13 +35,15 @@ export const useBudgetTemplate = ({ date }: UseBudgetTemplateProps) => {
 };
 
 // hooks/useUpdateBudgetTemplate.ts
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+
 export const useUpdateBudgetTemplate = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ values, date }: { 
-      values: Partial<Tables<"monthly_budgets">>,
-      date: Date 
+      values: Partial<Tables<"monthly_budgets">>;
+      date: Date;
     }) => {
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) {
@@ -80,6 +78,9 @@ export const useUpdateBudgetTemplate = () => {
       const year = date.getFullYear();
       queryClient.invalidateQueries({ 
         queryKey: ["budgetTemplate", month, year] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: ["monthlyBudget", month, year] 
       });
     },
   });
