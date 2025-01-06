@@ -12,12 +12,14 @@ const Index = () => {
   const {
     data: budget,
     isLoading: isBudgetLoading,
+    error: budgetError,
   } = useMonthlyBudget({ date: selectedDate });
 
   const {
     data: template,
     isLoading: isTemplateLoading,
-  } = useBudgetTemplate(selectedDate);
+    error: templateError,
+  } = useBudgetTemplate();
 
   const isLoading = isBudgetLoading || isTemplateLoading;
 
@@ -31,7 +33,7 @@ const Index = () => {
         />
         
         {isLoading ? (
-          <MonthlyBudgetView budget={null} isLoading={true} selectedDate={selectedDate} />
+          <MonthlyBudgetView budget={null as any} isLoading={true} selectedDate={selectedDate} />
         ) : !budget && template ? (
           <CreateBudgetPrompt template={template} selectedDate={selectedDate} />
         ) : !budget && !template ? (
