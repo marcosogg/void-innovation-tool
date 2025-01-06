@@ -3,26 +3,30 @@ import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Tables } from "@/integrations/supabase/types";
 
+interface CreateBudgetParams {
+  template: Tables<"monthly_budgets">;
+  date: Date;
+}
+
 export const useCreateMonthlyBudget = () => {
   const queryClient = useQueryClient();
-  const currentDate = new Date();
 
   return useMutation({
-    mutationFn: async (template: Tables<"monthly_budgets">) => {
+    mutationFn: async ({ template, date }: CreateBudgetParams) => {
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) {
         throw new Error("No authenticated user");
       }
 
-      const currentMonth = format(currentDate, "yyyy-MM");
-      const currentYear = currentDate.getFullYear();
+      const month = format(date, "yyyy-MM");
+      const year = date.getFullYear();
 
       const { data, error } = await supabase
         .from("monthly_budgets")
         .insert({
           user_id: session.session.user.id,
-          month: currentMonth,
-          year: currentYear,
+          month,
+          year,
           is_template: false,
           salary_income: template.salary_income,
           bonus_income: template.bonus_income,
@@ -47,8 +51,10 @@ export const useCreateMonthlyBudget = () => {
 
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["monthlyBudget"] });
+    onSuccess: (_, { date }) => {
+      const month = format(date, "yyyy-MM");
+      const year = date.getFullYear();
+      queryClient.invalidateQueries({ queryKey: ["monthlyBudget", month, year] });
     },
   });
 };
