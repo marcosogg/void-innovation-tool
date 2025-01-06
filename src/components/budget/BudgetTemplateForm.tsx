@@ -1,24 +1,10 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
-import { useToast } from "@/hooks/use-toast";
 import IncomeSection from "./IncomeSection";
 import ExpensesSection from "./ExpensesSection";
+import TemplateFormActions from "./TemplateFormActions";
 import { useBudgetTemplate } from "@/hooks/useBudgetTemplate";
-import { useUpdateBudgetTemplate } from "@/hooks/useUpdateBudgetTemplate";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 
 type TemplateFormValues = {
   salary_income: number;
@@ -36,8 +22,6 @@ type TemplateFormValues = {
 };
 
 const BudgetTemplateForm = () => {
-  const { toast } = useToast();
-  const navigate = useNavigate();
   const form = useForm<TemplateFormValues>({
     defaultValues: {
       salary_income: 0,
@@ -56,7 +40,6 @@ const BudgetTemplateForm = () => {
   });
 
   const { data: template, isLoading } = useBudgetTemplate();
-  const { mutate: updateTemplate, isPending } = useUpdateBudgetTemplate();
 
   useEffect(() => {
     if (template) {
@@ -77,27 +60,7 @@ const BudgetTemplateForm = () => {
     }
   }, [template, form]);
 
-  const handleSaveTemplate = (values: TemplateFormValues) => {
-    updateTemplate(values, {
-      onSuccess: () => {
-        toast({
-          title: "Success",
-          description: "Budget template saved successfully.",
-        });
-        navigate("/");
-      },
-      onError: (error) => {
-        console.error("Error saving template:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to save budget template. Please try again.",
-        });
-      },
-    });
-  };
-
-  if (isLoading || isPending) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
@@ -106,25 +69,7 @@ const BudgetTemplateForm = () => {
       <form className="space-y-6">
         <IncomeSection form={form} />
         <ExpensesSection form={form} />
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button type="button" className="w-full">Save Template</Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Save Budget Template</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to overwrite the existing template? This action cannot be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={form.handleSubmit(handleSaveTemplate)}>
-                Confirm
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <TemplateFormActions form={form} />
       </form>
     </Form>
   );
