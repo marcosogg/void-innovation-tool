@@ -9,6 +9,80 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      monthly_budgets: {
+        Row: {
+          bonus_income: number
+          brazilian_expenses_total: number
+          created_at: string
+          entertainment: number
+          extra_income: number
+          groceries: number
+          id: string
+          miscellaneous: number
+          month: string
+          profile_id: string
+          rent: number
+          salary_income: number
+          savings: number
+          shopping: number
+          total_income: number
+          transport: number
+          updated_at: string
+          utilities: number
+          year: number
+        }
+        Insert: {
+          bonus_income?: number
+          brazilian_expenses_total?: number
+          created_at?: string
+          entertainment?: number
+          extra_income?: number
+          groceries?: number
+          id?: string
+          miscellaneous?: number
+          month: string
+          profile_id: string
+          rent?: number
+          salary_income?: number
+          savings?: number
+          shopping?: number
+          total_income?: number
+          transport?: number
+          updated_at?: string
+          utilities?: number
+          year: number
+        }
+        Update: {
+          bonus_income?: number
+          brazilian_expenses_total?: number
+          created_at?: string
+          entertainment?: number
+          extra_income?: number
+          groceries?: number
+          id?: string
+          miscellaneous?: number
+          month?: string
+          profile_id?: string
+          rent?: number
+          salary_income?: number
+          savings?: number
+          shopping?: number
+          total_income?: number
+          transport?: number
+          updated_at?: string
+          utilities?: number
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_budgets_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
