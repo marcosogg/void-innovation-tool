@@ -100,30 +100,49 @@ const BudgetTemplateForm = () => {
   }, [form, toast]);
 
   const handleSaveTemplate = async (values: TemplateFormValues) => {
-    const { data: session } = await supabase.auth.getSession();
-    if (!session?.session?.user) return;
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "You must be logged in to save a template.",
+        });
+        return;
+      }
 
-    const { error } = await supabase.from("monthly_budgets").upsert({
-      user_id: session.session.user.id,
-      is_template: true,
-      month: "0000-00",
-      year: new Date().getFullYear(),
-      ...values,
-    });
+      const { error } = await supabase.from("monthly_budgets").upsert({
+        user_id: session.session.user.id,
+        is_template: true,
+        month: "0000-00",
+        year: new Date().getFullYear(),
+        ...values,
+      });
 
-    if (error) {
-      console.error("Error saving template:", error);
+      if (error) {
+        console.error("Error saving template:", error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to save budget template. Please try again.",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Budget template saved successfully.",
+        });
+        // Small delay to ensure the toast is visible and data is saved
+        setTimeout(() => {
+          navigate("/");
+        }, 500);
+      }
+    } catch (error) {
+      console.error("Error in handleSaveTemplate:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to save budget template. Please try again.",
+        description: "An unexpected error occurred. Please try again.",
       });
-    } else {
-      toast({
-        title: "Success",
-        description: "Budget template saved successfully.",
-      });
-      navigate("/");
     }
   };
 
