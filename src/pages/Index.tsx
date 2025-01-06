@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import NewBudgetForm from "@/components/NewBudgetForm";
 
 const Index = () => {
   const { toast } = useToast();
@@ -33,10 +34,8 @@ const Index = () => {
             Sign Out
           </Button>
         </div>
-        {/* Your finance tracker content will go here */}
-        <div className="text-center text-muted-foreground">
-          Welcome to your Finance Tracker dashboard!
-        </div>
+        
+        <NewBudgetForm />
       </div>
     </div>
   );
