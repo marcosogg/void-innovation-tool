@@ -33,13 +33,13 @@ const Index = () => {
         />
         
         {isLoading ? (
-          <MonthlyBudgetView budget={null as any} isLoading={true} />
+          <MonthlyBudgetView budget={null as any} isLoading={true} selectedDate={selectedDate} />
         ) : !budget && template ? (
           <CreateBudgetPrompt template={template} selectedDate={selectedDate} />
         ) : !budget && !template ? (
           <CreateBudgetPrompt template={null} selectedDate={selectedDate} />
         ) : budget ? (
-          <MonthlyBudgetView budget={budget} />
+          <MonthlyBudgetView budget={budget} selectedDate={selectedDate} />
         ) : null}
       </div>
     </div>

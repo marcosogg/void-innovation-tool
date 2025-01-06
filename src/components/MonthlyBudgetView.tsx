@@ -2,6 +2,10 @@ import { Tables } from "@/integrations/supabase/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
+import BrazilianExpensesForm from "./budget/BrazilianExpensesForm";
+import { Button } from "./ui/button";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 
 type MonthlyBudget = Tables<"monthly_budgets">;
 
@@ -34,9 +38,12 @@ const BudgetItem = ({ label, planned, actual }: BudgetItemProps) => {
 interface MonthlyBudgetViewProps {
   budget: MonthlyBudget;
   isLoading?: boolean;
+  selectedDate: Date;
 }
 
-const MonthlyBudgetView = ({ budget, isLoading }: MonthlyBudgetViewProps) => {
+const MonthlyBudgetView = ({ budget, isLoading, selectedDate }: MonthlyBudgetViewProps) => {
+  const [isExpensesDialogOpen, setIsExpensesDialogOpen] = useState(false);
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -104,8 +111,19 @@ const MonthlyBudgetView = ({ budget, isLoading }: MonthlyBudgetViewProps) => {
       </div>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Expenses Overview</CardTitle>
+          <Dialog open={isExpensesDialogOpen} onOpenChange={setIsExpensesDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">Update Brazilian Expenses</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px]">
+              <BrazilianExpensesForm
+                date={selectedDate}
+                onSuccess={() => setIsExpensesDialogOpen(false)}
+              />
+            </DialogContent>
+          </Dialog>
         </CardHeader>
         <CardContent className="space-y-4">
           <BudgetItem
