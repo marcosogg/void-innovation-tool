@@ -21,9 +21,25 @@ export const useCreateMonthlyBudget = () => {
       const month = format(date, "yyyy-MM");
       const year = date.getFullYear();
 
+      // First check if a budget already exists for this month
+      const { data: existingBudget } = await supabase
+        .from("monthly_budgets")
+        .select("*")
+        .eq("user_id", session.session.user.id)
+        .eq("month", month)
+        .eq("year", year)
+        .eq("is_template", false)
+        .maybeSingle();
+
+      // If a budget already exists, return it
+      if (existingBudget) {
+        return existingBudget;
+      }
+
+      // If no budget exists, create a new one
       const { data, error } = await supabase
         .from("monthly_budgets")
-        .upsert({
+        .insert({
           user_id: session.session.user.id,
           month,
           year,

@@ -6,31 +6,35 @@ import { useCreateMonthlyBudget } from "@/hooks/useCreateMonthlyBudget";
 
 interface CreateBudgetPromptProps {
   template: Tables<"monthly_budgets"> | null;
+  selectedDate: Date;
 }
 
-const CreateBudgetPrompt = ({ template }: CreateBudgetPromptProps) => {
+const CreateBudgetPrompt = ({ template, selectedDate }: CreateBudgetPromptProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { mutate: createBudget, isPending } = useCreateMonthlyBudget();
 
   const handleCreateFromTemplate = () => {
     if (template) {
-      createBudget(template, {
-        onSuccess: () => {
-          toast({
-            title: "Success",
-            description: "A new budget has been created from your template.",
-          });
-        },
-        onError: (error) => {
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Failed to create budget from template.",
-          });
-          console.error("Error creating budget:", error);
-        },
-      });
+      createBudget(
+        { template, date: selectedDate },
+        {
+          onSuccess: () => {
+            toast({
+              title: "Success",
+              description: "A new budget has been created from your template.",
+            });
+          },
+          onError: (error) => {
+            toast({
+              variant: "destructive",
+              title: "Error",
+              description: "Failed to create budget from template.",
+            });
+            console.error("Error creating budget:", error);
+          },
+        }
+      );
     }
   };
 
