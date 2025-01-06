@@ -67,11 +67,17 @@ const NewBudgetForm = () => {
   const { data: existingBudget } = useQuery({
     queryKey: ["budget", form.watch("month")],
     queryFn: async () => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user?.id) {
+        throw new Error("No authenticated user found");
+      }
+
       const { data, error } = await supabase
         .from("monthly_budgets")
         .select("*")
         .eq("month", form.watch("month").split("-")[1])
         .eq("year", parseInt(form.watch("month").split("-")[0]))
+        .eq("profile_id", session.session.user.id)
         .maybeSingle();
 
       if (error) throw error;
@@ -81,6 +87,11 @@ const NewBudgetForm = () => {
 
   const createBudget = useMutation({
     mutationFn: async (values: BudgetFormValues) => {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user?.id) {
+        throw new Error("No authenticated user found");
+      }
+
       const total_income = values.salary_income + values.bonus_income + values.extra_income;
       
       const { error } = await supabase.from("monthly_budgets").upsert({
@@ -99,6 +110,7 @@ const NewBudgetForm = () => {
         miscellaneous: values.miscellaneous,
         savings: values.savings,
         brazilian_expenses_total: 0, // This will be updated separately
+        profile_id: session.session.user.id,
       });
 
       if (error) throw error;
