@@ -27,9 +27,13 @@ const BrazilianExpensesForm = ({ date, onSuccess }: BrazilianExpensesFormProps) 
     setIsSubmitting(true);
 
     try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.user) {
+        throw new Error("No authenticated user");
+      }
+
       const month = format(date, "yyyy-MM");
       const year = date.getFullYear();
-      const totalBRL = Number(familySupport) + Number(bills) + Number(services);
 
       // Save to brazilian_expenses table
       const { data: expenseData, error: expenseError } = await supabase
@@ -40,8 +44,8 @@ const BrazilianExpensesForm = ({ date, onSuccess }: BrazilianExpensesFormProps) 
           family_support: Number(familySupport),
           bills: Number(bills),
           services: Number(services),
-          total_brl: totalBRL,
           exchange_rate: Number(exchangeRate),
+          user_id: session.session.user.id,
         })
         .select()
         .single();
@@ -49,6 +53,7 @@ const BrazilianExpensesForm = ({ date, onSuccess }: BrazilianExpensesFormProps) 
       if (expenseError) throw expenseError;
 
       // Update monthly_budget with converted total
+      const totalBRL = Number(familySupport) + Number(bills) + Number(services);
       const totalEUR = totalBRL / Number(exchangeRate);
       const { error: budgetError } = await supabase
         .from("monthly_budgets")
