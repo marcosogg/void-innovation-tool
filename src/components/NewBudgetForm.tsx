@@ -250,6 +250,6 @@ const NewBudgetForm = () => {
       </Form>
     </div>
   );
-});
+};
 
 export default NewBudgetForm;
