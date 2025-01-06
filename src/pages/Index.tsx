@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { format } from "date-fns";
 import MonthlyBudgetView from "@/components/MonthlyBudgetView";
 import { Tables } from "@/integrations/supabase/types";
@@ -10,6 +10,7 @@ import { Tables } from "@/integrations/supabase/types";
 const Index = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(true);
   const [hasBudget, setHasBudget] = useState(false);
   const [budget, setBudget] = useState<Tables<"monthly_budgets"> | null>(null);
@@ -75,7 +76,7 @@ const Index = () => {
           .select("*")
           .eq("user_id", session.session.user.id)
           .eq("is_template", true)
-          .eq("month", "0000-00")  // Updated from "template" to "0000-00"
+          .eq("month", "0000-00")
           .eq("year", currentYear)
           .maybeSingle();
 
@@ -145,7 +146,7 @@ const Index = () => {
     };
 
     checkAndCreateBudget();
-  }, [toast]);
+  }, [toast, location.key]); // Add location.key to dependencies to trigger refresh on navigation
 
   return (
     <div className="min-h-screen p-4">

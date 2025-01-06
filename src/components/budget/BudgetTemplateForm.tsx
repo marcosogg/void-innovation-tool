@@ -1,11 +1,23 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import IncomeSection from "./IncomeSection";
 import ExpensesSection from "./ExpensesSection";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type TemplateFormValues = {
   salary_income: number;
@@ -24,6 +36,7 @@ type TemplateFormValues = {
 
 const BudgetTemplateForm = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const form = useForm<TemplateFormValues>({
     defaultValues: {
       salary_income: 0,
@@ -86,7 +99,7 @@ const BudgetTemplateForm = () => {
     loadTemplate();
   }, [form, toast]);
 
-  const onSubmit = async (values: TemplateFormValues) => {
+  const handleSaveTemplate = async (values: TemplateFormValues) => {
     const { data: session } = await supabase.auth.getSession();
     if (!session?.session?.user) return;
 
@@ -110,15 +123,34 @@ const BudgetTemplateForm = () => {
         title: "Success",
         description: "Budget template saved successfully.",
       });
+      navigate("/");
     }
   };
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form className="space-y-6">
         <IncomeSection form={form} />
         <ExpensesSection form={form} />
-        <Button type="submit" className="w-full">Save Template</Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button type="button" className="w-full">Save Template</Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Save Budget Template</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to overwrite the existing template? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={form.handleSubmit(handleSaveTemplate)}>
+                Confirm
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </form>
     </Form>
   );
