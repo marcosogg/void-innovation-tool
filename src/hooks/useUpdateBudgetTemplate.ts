@@ -6,7 +6,7 @@ export const useUpdateBudgetTemplate = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (values: Partial<Tables<"monthly_budgets">>) => {
+    mutationFn: async (values: Partial<Tables<"monthly_budgets">> & { month: string; year: number }) => {
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) {
         throw new Error("No authenticated user");
@@ -17,8 +17,6 @@ export const useUpdateBudgetTemplate = () => {
         .upsert({
           user_id: session.session.user.id,
           is_template: true,
-          month: "0000-00",
-          year: new Date().getFullYear(),
           ...values,
         })
         .select()
@@ -31,9 +29,9 @@ export const useUpdateBudgetTemplate = () => {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       // Invalidate both template and monthly budget queries
-      queryClient.invalidateQueries({ queryKey: ["budgetTemplate"] });
+      queryClient.invalidateQueries({ queryKey: ["budgetTemplate", variables.month, variables.year] });
       queryClient.invalidateQueries({ queryKey: ["monthlyBudget"] });
     },
   });

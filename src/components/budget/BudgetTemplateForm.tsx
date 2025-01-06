@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import IncomeSection from "./IncomeSection";
 import ExpensesSection from "./ExpensesSection";
 import TemplateFormActions from "./TemplateFormActions";
 import { useBudgetTemplate } from "@/hooks/useBudgetTemplate";
+import MonthSelector from "./MonthSelector";
 
 type TemplateFormValues = {
   salary_income: number;
@@ -39,7 +40,8 @@ const BudgetTemplateForm = () => {
     },
   });
 
-  const { data: template, isLoading } = useBudgetTemplate();
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const { data: template, isLoading } = useBudgetTemplate({ date: selectedDate });
 
   useEffect(() => {
     if (template) {
@@ -67,9 +69,10 @@ const BudgetTemplateForm = () => {
   return (
     <Form {...form}>
       <form className="space-y-6">
+        <MonthSelector selectedDate={selectedDate} onDateChange={setSelectedDate} />
         <IncomeSection form={form} />
         <ExpensesSection form={form} />
-        <TemplateFormActions form={form} />
+        <TemplateFormActions form={form} selectedDate={selectedDate} />
       </form>
     </Form>
   );
