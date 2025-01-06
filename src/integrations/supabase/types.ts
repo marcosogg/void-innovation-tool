@@ -9,6 +9,56 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      brazilian_expenses: {
+        Row: {
+          bills: number
+          created_at: string
+          exchange_rate: number
+          family_support: number
+          id: string
+          month: string
+          profile_id: string
+          services: number
+          total_brl: number
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          bills?: number
+          created_at?: string
+          exchange_rate: number
+          family_support?: number
+          id?: string
+          month: string
+          profile_id: string
+          services?: number
+          total_brl?: number
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          bills?: number
+          created_at?: string
+          exchange_rate?: number
+          family_support?: number
+          id?: string
+          month?: string
+          profile_id?: string
+          services?: number
+          total_brl?: number
+          updated_at?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brazilian_expenses_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       monthly_budgets: {
         Row: {
           bonus_income: number
