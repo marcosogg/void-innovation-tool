@@ -97,6 +97,7 @@ export type Database = {
           salary_income: number
           savings: number
           shopping: number
+          template_month: string
           total_income: number | null
           transport: number
           updated_at: string
@@ -131,6 +132,7 @@ export type Database = {
           salary_income?: number
           savings?: number
           shopping?: number
+          template_month?: string
           total_income?: number | null
           transport?: number
           updated_at?: string
@@ -165,6 +167,7 @@ export type Database = {
           salary_income?: number
           savings?: number
           shopping?: number
+          template_month?: string
           total_income?: number | null
           transport?: number
           updated_at?: string
