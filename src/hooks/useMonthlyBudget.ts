@@ -7,7 +7,8 @@ interface UseMonthlyBudgetProps {
 }
 
 export const useMonthlyBudget = ({ date }: UseMonthlyBudgetProps) => {
-  const month = format(date, "yyyy-MM");
+  // Format the month as MM (01-12)
+  const month = format(date, "MM");
   const year = date.getFullYear();
 
   return useQuery({

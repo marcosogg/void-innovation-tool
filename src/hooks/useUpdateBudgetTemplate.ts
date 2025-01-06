@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Tables } from "@/integrations/supabase/types";
+import { format } from "date-fns";
 
 export const useUpdateBudgetTemplate = () => {
   const queryClient = useQueryClient();
@@ -12,12 +13,16 @@ export const useUpdateBudgetTemplate = () => {
         throw new Error("No authenticated user");
       }
 
+      // Format the month as MM (01-12)
+      const monthValue = format(new Date(values.year, parseInt(values.month.split('-')[1]) - 1), 'MM');
+
       const { data, error } = await supabase
         .from("monthly_budgets")
         .upsert({
           user_id: session.session.user.id,
           is_template: true,
           ...values,
+          month: monthValue, // Use the formatted month value
         })
         .select()
         .single();
