@@ -90,7 +90,7 @@ export type Database = {
           groceries: number
           id: string
           miscellaneous: number
-          month: string
+          month: number
           profile_id: string
           rent: number
           salary_income: number
@@ -111,7 +111,7 @@ export type Database = {
           groceries?: number
           id?: string
           miscellaneous?: number
-          month: string
+          month: number
           profile_id: string
           rent?: number
           salary_income?: number
@@ -132,7 +132,7 @@ export type Database = {
           groceries?: number
           id?: string
           miscellaneous?: number
-          month?: string
+          month?: number
           profile_id?: string
           rent?: number
           salary_income?: number
