@@ -9,6 +9,162 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      brazilian_expenses: {
+        Row: {
+          bills: number
+          created_at: string
+          exchange_rate: number
+          family_support: number
+          month: string
+          services: number
+          total_brl: number | null
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          bills?: number
+          created_at?: string
+          exchange_rate: number
+          family_support?: number
+          month: string
+          services?: number
+          total_brl?: number | null
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          bills?: number
+          created_at?: string
+          exchange_rate?: number
+          family_support?: number
+          month?: string
+          services?: number
+          total_brl?: number | null
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: []
+      }
+      exchange_rates: {
+        Row: {
+          created_at: string
+          date: string
+          rate: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          rate: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          rate?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      monthly_budgets: {
+        Row: {
+          bonus_income: number
+          brazilian_expenses_total: number
+          created_at: string
+          entertainment: number
+          extra_income: number
+          groceries: number
+          miscellaneous: number
+          month: string
+          rent: number
+          salary_income: number
+          savings: number
+          shopping: number
+          total_income: number | null
+          transport: number
+          updated_at: string
+          user_id: string
+          utilities: number
+          year: number
+        }
+        Insert: {
+          bonus_income?: number
+          brazilian_expenses_total?: number
+          created_at?: string
+          entertainment?: number
+          extra_income?: number
+          groceries?: number
+          miscellaneous?: number
+          month: string
+          rent?: number
+          salary_income?: number
+          savings?: number
+          shopping?: number
+          total_income?: number | null
+          transport?: number
+          updated_at?: string
+          user_id: string
+          utilities?: number
+          year: number
+        }
+        Update: {
+          bonus_income?: number
+          brazilian_expenses_total?: number
+          created_at?: string
+          entertainment?: number
+          extra_income?: number
+          groceries?: number
+          miscellaneous?: number
+          month?: string
+          rent?: number
+          salary_income?: number
+          savings?: number
+          shopping?: number
+          total_income?: number | null
+          transport?: number
+          updated_at?: string
+          user_id?: string
+          utilities?: number
+          year?: number
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          message: string
+          sent: boolean
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          message: string
+          sent?: boolean
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          message?: string
+          sent?: boolean
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
