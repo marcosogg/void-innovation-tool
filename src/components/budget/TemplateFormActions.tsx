@@ -27,7 +27,7 @@ const TemplateFormActions = ({ form, selectedDate }: TemplateFormActionsProps) =
   const { mutate: updateTemplate, isPending } = useUpdateBudgetTemplate();
 
   const handleSaveTemplate = (values: any) => {
-    const month = format(selectedDate, "yyyy-MM");
+    const month = format(selectedDate, "MM");
     const year = selectedDate.getFullYear();
 
     updateTemplate(

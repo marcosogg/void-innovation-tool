@@ -14,7 +14,8 @@ export const useUpdateBudgetTemplate = () => {
       }
 
       // Format the month as MM (01-12)
-      const monthValue = format(new Date(values.year, parseInt(values.month.split('-')[1]) - 1), 'MM');
+      const date = new Date(values.year, parseInt(values.month) - 1);
+      const monthValue = format(date, 'MM');
 
       const { data, error } = await supabase
         .from("monthly_budgets")
@@ -22,10 +23,10 @@ export const useUpdateBudgetTemplate = () => {
           user_id: session.session.user.id,
           is_template: true,
           ...values,
-          month: monthValue, // Use the formatted month value
+          month: monthValue,
         })
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) {
         console.error("Error updating budget template:", error);
