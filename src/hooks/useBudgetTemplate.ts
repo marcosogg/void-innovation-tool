@@ -1,18 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
 
-interface UseBudgetTemplateProps {
-  date: Date;
-}
-
-export const useBudgetTemplate = ({ date }: UseBudgetTemplateProps) => {
-  // Format the month as MM (01-12)
-  const month = format(date, 'MM');
-  const year = date.getFullYear();
-
+export const useBudgetTemplate = () => {
   return useQuery({
-    queryKey: ["budgetTemplate", month, year],
+    queryKey: ["budgetTemplate"],
     queryFn: async () => {
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.user) {
@@ -24,8 +15,8 @@ export const useBudgetTemplate = ({ date }: UseBudgetTemplateProps) => {
         .select("*")
         .eq("user_id", session.session.user.id)
         .eq("is_template", true)
-        .eq("month", month)
-        .eq("year", year)
+        .eq("month", "0000-00")
+        .eq("year", new Date().getFullYear())
         .maybeSingle();
 
       if (error) {

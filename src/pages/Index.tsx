@@ -19,7 +19,7 @@ const Index = () => {
     data: template,
     isLoading: isTemplateLoading,
     error: templateError,
-  } = useBudgetTemplate({ date: selectedDate });
+  } = useBudgetTemplate();
 
   const isLoading = isBudgetLoading || isTemplateLoading;
 
