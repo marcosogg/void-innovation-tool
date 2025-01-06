@@ -23,7 +23,7 @@ export const useCreateMonthlyBudget = () => {
 
       const { data, error } = await supabase
         .from("monthly_budgets")
-        .insert({
+        .upsert({
           user_id: session.session.user.id,
           month,
           year,
@@ -40,6 +40,18 @@ export const useCreateMonthlyBudget = () => {
           miscellaneous: template.miscellaneous,
           brazilian_expenses_total: template.brazilian_expenses_total,
           savings: template.savings,
+          actual_salary_income: 0,
+          actual_bonus_income: 0,
+          actual_extra_income: 0,
+          actual_rent: 0,
+          actual_utilities: 0,
+          actual_groceries: 0,
+          actual_transport: 0,
+          actual_entertainment: 0,
+          actual_shopping: 0,
+          actual_miscellaneous: 0,
+          actual_brazilian_expenses_total: 0,
+          actual_savings: 0,
         })
         .select()
         .single();
