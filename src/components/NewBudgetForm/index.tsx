@@ -45,6 +45,7 @@ const NewBudgetForm = () => {
       }
 
       const [year, month] = form.watch("month").split("-");
+      console.log("Month value being queried:", month);
       const { data, error } = await supabase
         .from("monthly_budgets")
         .select("*")
@@ -67,6 +68,7 @@ const NewBudgetForm = () => {
 
       const total_income = values.salary_income + values.bonus_income + values.extra_income;
       const [year, month] = values.month.split("-");
+      console.log("Month value being sent:", month);
       
       const { error } = await supabase.from("monthly_budgets").upsert({
         month: month.padStart(2, '0'),
@@ -122,6 +124,20 @@ const NewBudgetForm = () => {
     createBudget.mutate(values);
   };
 
+  const handleMonthChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Only allow digits and hyphens
+    const cleanValue = value.replace(/[^\d-]/g, '');
+    
+    // Format as YYYY-MM
+    let formattedValue = cleanValue;
+    if (cleanValue.length >= 4 && !cleanValue.includes('-')) {
+      formattedValue = `${cleanValue.slice(0, 4)}-${cleanValue.slice(4, 6)}`;
+    }
+    
+    return formattedValue;
+  };
+
   return (
     <div className="max-w-2xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-6">Create New Monthly Budget</h2>
@@ -146,7 +162,15 @@ const NewBudgetForm = () => {
               <FormItem>
                 <FormLabel>Month</FormLabel>
                 <FormControl>
-                  <Input type="month" {...field} />
+                  <Input 
+                    type="text"
+                    placeholder="YYYY-MM"
+                    {...field}
+                    onChange={(e) => {
+                      const formattedValue = handleMonthChange(e);
+                      field.onChange(formattedValue);
+                    }}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
