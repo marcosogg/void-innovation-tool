@@ -6,8 +6,6 @@ import { Tables } from "@/integrations/supabase/types";
 export const useCreateMonthlyBudget = () => {
   const queryClient = useQueryClient();
   const currentDate = new Date();
-  const currentMonth = format(currentDate, "yyyy-MM");
-  const currentYear = currentDate.getFullYear();
 
   return useMutation({
     mutationFn: async (template: Tables<"monthly_budgets">) => {
@@ -15,6 +13,9 @@ export const useCreateMonthlyBudget = () => {
       if (!session?.session?.user) {
         throw new Error("No authenticated user");
       }
+
+      const currentMonth = format(currentDate, "yyyy-MM");
+      const currentYear = currentDate.getFullYear();
 
       const { data, error } = await supabase
         .from("monthly_budgets")

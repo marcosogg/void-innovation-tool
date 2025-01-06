@@ -2,10 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 
-export const useMonthlyBudget = () => {
-  const currentDate = new Date();
-  const currentMonth = format(currentDate, "yyyy-MM");
-  const currentYear = currentDate.getFullYear();
+export const useMonthlyBudget = (date: Date) => {
+  const currentMonth = format(date, "yyyy-MM");
+  const currentYear = date.getFullYear();
 
   return useQuery({
     queryKey: ["monthlyBudget", currentMonth, currentYear],

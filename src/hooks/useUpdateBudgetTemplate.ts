@@ -32,6 +32,7 @@ export const useUpdateBudgetTemplate = () => {
       return data;
     },
     onSuccess: () => {
+      // Invalidate both template and monthly budget queries
       queryClient.invalidateQueries({ queryKey: ["budgetTemplate"] });
       queryClient.invalidateQueries({ queryKey: ["monthlyBudget"] });
     },
