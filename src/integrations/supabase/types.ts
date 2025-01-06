@@ -71,12 +71,26 @@ export type Database = {
       }
       monthly_budgets: {
         Row: {
+          actual_bonus_income: number
+          actual_brazilian_expenses_total: number
+          actual_entertainment: number
+          actual_extra_income: number
+          actual_groceries: number
+          actual_miscellaneous: number
+          actual_rent: number
+          actual_salary_income: number
+          actual_savings: number
+          actual_shopping: number
+          actual_total_income: number | null
+          actual_transport: number
+          actual_utilities: number
           bonus_income: number
           brazilian_expenses_total: number
           created_at: string
           entertainment: number
           extra_income: number
           groceries: number
+          is_template: boolean
           miscellaneous: number
           month: string
           rent: number
@@ -91,12 +105,26 @@ export type Database = {
           year: number
         }
         Insert: {
+          actual_bonus_income?: number
+          actual_brazilian_expenses_total?: number
+          actual_entertainment?: number
+          actual_extra_income?: number
+          actual_groceries?: number
+          actual_miscellaneous?: number
+          actual_rent?: number
+          actual_salary_income?: number
+          actual_savings?: number
+          actual_shopping?: number
+          actual_total_income?: number | null
+          actual_transport?: number
+          actual_utilities?: number
           bonus_income?: number
           brazilian_expenses_total?: number
           created_at?: string
           entertainment?: number
           extra_income?: number
           groceries?: number
+          is_template?: boolean
           miscellaneous?: number
           month: string
           rent?: number
@@ -111,12 +139,26 @@ export type Database = {
           year: number
         }
         Update: {
+          actual_bonus_income?: number
+          actual_brazilian_expenses_total?: number
+          actual_entertainment?: number
+          actual_extra_income?: number
+          actual_groceries?: number
+          actual_miscellaneous?: number
+          actual_rent?: number
+          actual_salary_income?: number
+          actual_savings?: number
+          actual_shopping?: number
+          actual_total_income?: number | null
+          actual_transport?: number
+          actual_utilities?: number
           bonus_income?: number
           brazilian_expenses_total?: number
           created_at?: string
           entertainment?: number
           extra_income?: number
           groceries?: number
+          is_template?: boolean
           miscellaneous?: number
           month?: string
           rent?: number
