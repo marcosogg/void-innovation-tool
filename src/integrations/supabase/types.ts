@@ -59,6 +59,27 @@ export type Database = {
           },
         ]
       }
+      exchange_rates: {
+        Row: {
+          created_at: string
+          date: string
+          rate: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          rate: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          rate?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       monthly_budgets: {
         Row: {
           bonus_income: number
