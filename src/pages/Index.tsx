@@ -75,7 +75,7 @@ const Index = () => {
           .select("*")
           .eq("user_id", session.session.user.id)
           .eq("is_template", true)
-          .eq("month", "template")
+          .eq("month", "0000-00")  // Updated from "template" to "0000-00"
           .eq("year", currentYear)
           .maybeSingle();
 
